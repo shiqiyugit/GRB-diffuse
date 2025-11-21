@@ -117,29 +117,43 @@ class GRB:
         plt.savefig('spectrum.pdf')
         plt.show()
 
+    def show_060218(self, ax):
+        folder = '/Users/bzhang/Research/Project/Neutrino/GRB-diffuse/data/060218_afterglow/'
+        d = np.loadtxt(folder + '060218_afterglow_1.43GHz.dat')
+        ax.plot(d[:,0], d[:,1]*d[:,2], 'o')
+        d = np.loadtxt(folder + '060218_afterglow_15GHz.dat')
+        ax.plot(d[:,0], d[:,1]*d[:,2], 'o')
+        #d = np.loadtxt(folder + '060218_afterglow_22.5GHz.dat')
+        #ax.plot(d[:,0], d[:,1]*d[:,2], 'o')
+        d = np.loadtxt(folder + '060218_afterglow_1keV.dat')
+        ax.plot(d[:,0], d[:,1]*d[:,2], 'o')
+
     def plot_flux(self):
         fig, ax = plt.subplots()
 
-        #energy = s.getPhoton().getEnergy()
+        self.show_060218(ax)
+
+        """
         time = self.time_array
         for j, x in enumerate(self.energy_array_min):
             dum = []
             for i in range(len(self.flux_vector)):
                 dum.append(self.flux_vector[i][j])
             ax.plot(time, dum, '--', lw=2)
+        """
 
         ax.set_xscale('log')
         ax.set_yscale('log')
-        ax.set_xlim([1, 1e4])
-        ax.set_ylim([1e-19, 1e-4])
-        ax.set_xlabel('T [s]', fontsize=15)
-        ax.set_ylabel(r'Flux $[\rm erg \ cm^{-2} \ s^{-1}]$', fontsize=15)
+        ax.set_xlim([1e-1, 1e2])
+        ax.set_ylim([1e-12, 1e4])
+        ax.set_xlabel('T [days]', fontsize=15)
+        ax.set_ylabel(r'Flux $[\mu\rm Jy]$', fontsize=15)
         ax.legend(fontsize=7)
         plt.show()
 
 g = GRB()
 #g.calc_dynamic()
-g.calc_flux()
+#g.calc_flux()
 g.plot_flux()
 #g.calc_spectrum(1e2)
 #g.plot_spectrum()
