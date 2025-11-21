@@ -1,0 +1,10 @@
+# XSPEC script
+cpd /xs
+ignore **-10. 195.-**
+model pow 
+fit
+setplot energy
+plot eeufspec
+plot ldata
+setplot rebin 0 5
+iplot
