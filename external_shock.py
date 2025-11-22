@@ -60,21 +60,22 @@ class GRB:
                  p['epsilon_e'], p['fraction_e'], p['eta_acc_e'], p['epsilon_B'], p['open_angle'], p['view_angle'], p['gaussian_cone'], p['jet_index'], p['T_ej']]
         grb.setGRBAfterglowParam(param)
 
-        self.p_RS = p_RS
-        param_RS = [p_RS['spectral_e_RS'], p_RS['epsilon_e_RS'], p_RS['fraction_e_RS'], p_RS['eta_acc_e_RS'],
-                    p_RS['epsilon_B_RS']]
-        grb.setGRBAfterglowRSParam(param_RS)
+        #self.p_RS = p_RS
+        #param_RS = [p_RS['spectral_e_RS'], p_RS['epsilon_e_RS'], p_RS['fraction_e_RS'], p_RS['eta_acc_e_RS'],
+        #            p_RS['epsilon_B_RS']]
+        #grb.setGRBAfterglowRSParam(param_RS)
 
-        t_min = np.log10(1e1)
-        t_max = np.log10(1e5)
-        self.time_array = np.logspace(t_min, t_max, 6)
-        self.energy_array_min = [1e9 / AMES.eV2Hz, 1e11 / AMES.eV2Hz, 1e0, 1e3, 1e9, 1e11]
-        self.energy_array_max = [1e9 / AMES.eV2Hz, 1e11 / AMES.eV2Hz, 1e0, 1e3, 1e9, 1e11]
+        t_min = np.log10(1e3)
+        t_max = np.log10(1e7)
+        self.time_array = np.logspace(t_min, t_max, 9)
+        self.energy_array_min = [1e9 / AMES.eV2Hz, 1e11 / AMES.eV2Hz, 1e0, 1e3]
+        self.energy_array_max = [1e9 / AMES.eV2Hz, 1e11 / AMES.eV2Hz, 1e0, 1e3]
+        self.energy_label = ['1 GHz', '100 GHz', '1 eV', '1 keV']
 
     def calc_flux(self):
-        grb.haveSSCSpec(True)
+        grb.haveSSCSpec(False)
         grb.haveAttenuSSA(True)
-        grb.haveAttenuGGSource(True)
+        grb.haveAttenuGGSource(False)
         grb.showInfo(True)
         flux_vector = grb.Flux(self.time_array, self.energy_array_min, self.energy_array_max)
         self.flux_vector = flux_vector
@@ -120,40 +121,51 @@ class GRB:
     def show_060218(self, ax):
         folder = '/Users/bzhang/Research/Project/Neutrino/GRB-diffuse/data/060218_afterglow/'
         d = np.loadtxt(folder + '060218_afterglow_1.43GHz.dat')
-        ax.plot(d[:,0], d[:,1]*d[:,2], 'o')
+        ax.plot(d[:,0], d[:,1]/d[:,2], 'o')
+        d = np.loadtxt(folder + '060218_afterglow_4.86GHz.dat')
+        ax.plot(d[:,0], d[:,1]/d[:,2], 'o')
+        d = np.loadtxt(folder + '060218_afterglow_8.46GHz.dat')
+        ax.plot(d[:,0], d[:,1]/d[:,2], 'o')
         d = np.loadtxt(folder + '060218_afterglow_15GHz.dat')
-        ax.plot(d[:,0], d[:,1]*d[:,2], 'o')
+        ax.plot(d[:,0], d[:,1]/d[:,2], 'o')
         #d = np.loadtxt(folder + '060218_afterglow_22.5GHz.dat')
-        #ax.plot(d[:,0], d[:,1]*d[:,2], 'o')
+        #ax.plot(d[:,0], d[:,1]/d[:,2], 'o')
         d = np.loadtxt(folder + '060218_afterglow_1keV.dat')
-        ax.plot(d[:,0], d[:,1]*d[:,2], 'o')
+        ax.plot(d[:,0], d[:,1]/d[:,2], 'o')
+
+    def show_100316D(self, ax):
+        folder = '/Users/bzhang/Research/Project/Neutrino/GRB-diffuse/data/100316D_afterglow/'
+        d = np.loadtxt(folder + '100316D_afterglow_5.4GHz.dat')
+        ax.plot(d[:,0], d[:,1]/d[:,2], '^')
+        d = np.loadtxt(folder + '100316D_afterglow_9GHz.dat')
+        ax.plot(d[:,0], d[:,1]/d[:,2], '^')
+        d = np.loadtxt(folder + '100316D_afterglow_1keV.dat')
+        ax.plot(d[:,0], d[:,1]/d[:,2], '^')
 
     def plot_flux(self):
         fig, ax = plt.subplots()
 
         self.show_060218(ax)
+        self.show_100316D(ax)
 
-        """
         time = self.time_array
         for j, x in enumerate(self.energy_array_min):
             dum = []
             for i in range(len(self.flux_vector)):
-                dum.append(self.flux_vector[i][j])
-            ax.plot(time, dum, '--', lw=2)
-        """
+                dum.append(self.flux_vector[i][j]/(x*AMES.eV2Hz)*AMES.erg2Jy*1e6)
+            ax.plot(time/AMES.days, dum, '--', lw=2, label=self.energy_label[j])
 
         ax.set_xscale('log')
         ax.set_yscale('log')
         ax.set_xlim([1e-1, 1e2])
-        ax.set_ylim([1e-12, 1e4])
+        ax.set_ylim([1e-4, 1e4])
         ax.set_xlabel('T [days]', fontsize=15)
         ax.set_ylabel(r'Flux $[\mu\rm Jy]$', fontsize=15)
         ax.legend(fontsize=7)
         plt.show()
 
 g = GRB()
-#g.calc_dynamic()
-#g.calc_flux()
+g.calc_flux()
 g.plot_flux()
 #g.calc_spectrum(1e2)
 #g.plot_spectrum()
